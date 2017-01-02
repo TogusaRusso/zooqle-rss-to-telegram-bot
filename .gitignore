@@ -27,7 +27,7 @@ coverage
 build/Release
 
 # Dependency directories
-node_modules
+node_modulesnp
 jspm_packages
 
 # Optional npm cache directory
@@ -35,3 +35,7 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+# MongoDB on Cloud9
+data
+mongod
