@@ -11,6 +11,15 @@ const index = require('./routes/index')
 const bot = require('./logic/bot')
 // var users = require('./routes/users')
 
+const dburi = process.env.MONGOLAB_URI ||
+  process.env.MONGODB_URI ||
+  'mongodb://localhost:27017'
+const mongoose = require('mongoose')
+mongoose.connect(dburi)
+const db = mongoose.connection
+db.on('error', console.error.bind(console, 'connection error:'))
+db.once('open', () => { console.log('connected to database') })
+
 var app = express()
 
 // view engine setup

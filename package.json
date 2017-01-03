@@ -14,7 +14,7 @@
     "express": "~4.14.0",
     "htmlparser2": "^3.9.2",
     "jade": "~1.11.0",
-    "mongodb": "^2.2.16",
+    "mongoose": "^4.7.6",
     "morgan": "~1.7.0",
     "node-telegram-bot-api": "^0.25.0",
     "rss-parser": "^2.5.2",
