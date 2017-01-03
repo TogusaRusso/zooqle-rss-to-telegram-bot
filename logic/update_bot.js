@@ -11,6 +11,12 @@ const dburi = process.env.MONGOLAB_URI ||
 const mongoose = require('mongoose')
 mongoose.connect(dburi)
 
+const cloudscraper = require('cloudscraper')
+cloudscraper.get('https://zooqle.com/rss/tv/2804tk2t6s.rss', (err, res, body) => {
+  if(err) return console.error(err)
+  console.log(body)
+})
+
 checkUpdates()
 
 function checkUpdates () {
