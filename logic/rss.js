@@ -10,25 +10,27 @@ module.exports = (url, cb) => {
     // console.log(parsed.feed.title)
     parsed.feed.entries.forEach((entry) => {
       // let's check if entry was already parsed
-      Record.where({link: entry.link}).findOne((err, record) => {
-        if (err) { return console.error(err) }
+      let url = encodeURI(entry.link)
+      Record.where({link: url}).findOne((err, record) => {
+        if (err) return console.error(err)
         if (!record) {
           console.log(`that's new entry, let's parse it`)
-          parser(entry.link, (magnet) => {
-            const record = new Record({
+          parser(url, (magnet) => {
+            console.log(`parsed ${url} got ${magnet}`)
+            let newRecord = new Record({
               title: entry.title,
               content: entry.content,
-              link: entry.link,
+              link: url,
               magnet: magnet
             })
-            record.save((err, result) => {
+            newRecord.save((err, result) => {
               if (err) { return console.error(err) }
-              console.log('saved new record in database')
+              console.log(`saved new record in database ${url}`)
               cb(result)
             })
           })
         } else {
-          // console.log('this record already was parsed')
+          // this record already was parsed
           cb(record)
         }
       })

@@ -1,24 +1,27 @@
 'use strict'
 
-const rss = require('./rss')
 const Telegram = require('node-telegram-bot-api')
-// const url = 'https://zooqle.com/rss/tv/2804tk2t6s.rss'
-
+const User = require('../models/users')
 const bot = new Telegram(process.env.TOKEN)
 
 bot.onText(/^\/rss (https:\/\/zooqle\.com\/rss\/tv\/[\da-z]+\.rss)/,
   (msg, match) => {
     const chatId = msg.chat.id
     const url = match[1]
-
-    rss(url, (record) => {
-      let message = `*${record.title}*
-      _${record.content}_
-      ${process.env.WEBHOOK}id${record._id}`
-      bot.sendMessage(chatId, message, {
-        parse_mode: 'Markdown',
-        disable_web_page_preview: true
-      })
+    User.where({chatId: chatId, rss: url}).findOne((err, user) => {
+      if (err) return console.error(err)
+      if (user) {
+        bot.sendMessage(chatId, 'Вы уже добавили этот rss поток')
+      } else {
+        let newUser = new User({
+          chatId: chatId,
+          rss: url
+        })
+        newUser.save((err, result) => {
+          if (err) return console.error(err)
+          bot.sendMessage(chatId, 'Новый rss поток сохранен')
+        })
+      }
     })
   }
 )
