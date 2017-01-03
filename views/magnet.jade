@@ -1,8 +1,10 @@
 extends layout
 
 block content
-  h1= title
+  b= title
+  p!= record.content.replace(/\n/g, '<br />')
+
   p
-    a(href='#{magnet}')
+    a(href='#{record.magnet}')
       img(src='images/magnet.png', height='12')
-      =title
+      ="Magnet link"

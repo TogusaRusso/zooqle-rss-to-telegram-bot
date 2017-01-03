@@ -16,6 +16,7 @@
     "jade": "~1.11.0",
     "mongodb": "^2.2.16",
     "morgan": "~1.7.0",
+    "node-telegram-bot-api": "^0.25.0",
     "rss-parser": "^2.5.2",
     "serve-favicon": "~2.3.0"
   },
