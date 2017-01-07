@@ -5,15 +5,14 @@ const http = require('http')
 const Record = require('../models/records')
 
 // states
-const FEED  = 'feed'
-const ITEM  = 'item'
+const FEED = 'feed'
+const ITEM = 'item'
 const TITLE = 'title'
-const LINK  = 'link'
+const LINK = 'link'
 const DESCRIPTION = 'description'
 const MAGNET = 'torrent:magneturi'
 
-const unCdata = (text) => text.match(/\[CDATA\[([\s\S]*)\]\]/)[1]
-
+const unCdata = (text) => text.match(/\[CDATA\[([\s\S]*)]]/)[1]
 
 const parseRss = (url, cb) => {
   let state = FEED
@@ -26,7 +25,7 @@ const parseRss = (url, cb) => {
           title: '',
           content: '',
           link: '',
-          magnet:''
+          magnet: ''
         }
       }
       if (state === ITEM && name === TITLE) state = TITLE
@@ -36,12 +35,12 @@ const parseRss = (url, cb) => {
     },
     ontext: (text) => {
       if (state === TITLE) {
-        entry.title = text 
-        state = ITEM 
+        entry.title = text
+        state = ITEM
       }
-      if (state === LINK) { 
+      if (state === LINK) {
         entry.link = text
-        state = ITEM 
+        state = ITEM
       }
     },
     oncomment: (text) => {
@@ -60,7 +59,7 @@ const parseRss = (url, cb) => {
         cb(entry)
       }
     }
-  },{decodeEntities: true})
+  }, {decodeEntities: true})
   http.get(url, (res) => {
     res.on('data', (chunk) => parser.write(chunk))
     .on('end', () => parser.end())

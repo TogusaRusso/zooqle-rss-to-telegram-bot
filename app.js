@@ -20,11 +20,12 @@ const db = mongoose.connection
 db.on('error', console.error.bind(console, 'connection error:'))
 db.once('open', () => { console.log('connected to database') })
 
-const CronJob = require('cron').CronJob
-const updateBot = require('./logic/update_bot')
-let job = new CronJob('0 */30 * * * *', updateBot)
-job.start()
-console.log(`scheduled updates for every 30 minutes`)
+// I will use Heroku.Scheduler instead of cron
+// const CronJob = require('cron').CronJob
+// const updateBot = require('./logic/update_bot')
+// let job = new CronJob('0 */30 * * * *', updateBot)
+// job.start()
+// console.log(`scheduled updates for every 30 minutes`)
 
 var app = express()
 
