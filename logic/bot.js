@@ -4,7 +4,7 @@ const Telegram = require('node-telegram-bot-api')
 const User = require('../models/users')
 const bot = new Telegram(process.env.TOKEN)
 
-bot.onText(/^\/rss (https:\/\/zooqle\.com\/rss\/tv\/[\da-z]+\.rss)/,
+bot.onText(/^\/rss (http:\/\/feeds\.feedburner\.com\/(.*))/,
   (msg, match) => {
     const chatId = msg.chat.id
     const url = match[1]

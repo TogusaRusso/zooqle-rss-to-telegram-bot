@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "body-parser": "~1.15.2",
-    "cloudscraper": "^1.4.1",
     "cookie-parser": "~1.4.3",
     "cron": "^1.2.1",
     "debug": "~2.2.0",

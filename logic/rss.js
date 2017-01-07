@@ -1,40 +1,90 @@
 'use strict'
 
-const rss = require('rss-parser')
-const parser = require('./parser')
+const htmlparser = require('htmlparser2')
+const http = require('http')
 const Record = require('../models/records')
 
-module.exports = (url, cb) => {
-  rss.parseURL(url, (err, parsed) => {
-    if (err) return console.error(err)
-    // console.log(parsed.feed.title)
-    parsed.feed.entries.forEach((entry) => {
-      // let's check if entry was already parsed
-      let url = encodeURI(entry.link)
-      Record.where({link: url}).findOne((err, record) => {
-        if (err) return console.error(err)
-        if (!record) {
-          console.log(`that's new entry, let's parse it`)
-          parser(url, (magnet) => {
-            console.log(`parsed ${url} got ${magnet}`)
-            let newRecord = new Record({
-              title: entry.title,
-              content: entry.content,
-              link: url,
-              magnet: magnet
-            })
-            newRecord.save((err, result) => {
-              if (err) { return console.error(err) }
-              console.log(`saved new record in database ${url}`)
-              cb(result)
-            })
-          })
-        } else {
-          // this record already was parsed
-          cb(record)
+// states
+const FEED  = 'feed'
+const ITEM  = 'item'
+const TITLE = 'title'
+const LINK  = 'link'
+const DESCRIPTION = 'description'
+const MAGNET = 'torrent:magneturi'
+
+const unCdata = (text) => text.match(/\[CDATA\[([\s\S]*)\]\]/)[1]
+
+
+const parseRss = (url, cb) => {
+  let state = FEED
+  let entry = {}
+  const parser = new htmlparser.Parser({
+    onopentag: (name, attr) => {
+      if (state === FEED && name === ITEM) {
+        state = ITEM
+        entry = {
+          title: '',
+          content: '',
+          link: '',
+          magnet:''
         }
-      })
-    })
+      }
+      if (state === ITEM && name === TITLE) state = TITLE
+      if (state === ITEM && name === DESCRIPTION) state = DESCRIPTION
+      if (state === ITEM && name === LINK) state = LINK
+      if (state === ITEM && name === MAGNET) state = MAGNET
+    },
+    ontext: (text) => {
+      if (state === TITLE) {
+        entry.title = text 
+        state = ITEM 
+      }
+      if (state === LINK) { 
+        entry.link = text
+        state = ITEM 
+      }
+    },
+    oncomment: (text) => {
+      if (state === DESCRIPTION) {
+        entry.content = unCdata(text)
+        state = ITEM
+      }
+      if (state === MAGNET) {
+        entry.magnet = unCdata(text)
+        state = ITEM
+      }
+    },
+    onclosetag: (name) => {
+      if (state === ITEM && name === ITEM) {
+        state = FEED
+        cb(entry)
+      }
+    }
+  },{decodeEntities: true})
+  http.get(url, (res) => {
+    res.on('data', (chunk) => parser.write(chunk))
+    .on('end', () => parser.end())
+  }).on('error', (e) => {
+    console.error(`Got error: ${e.message}`)
   })
 }
 
+module.exports = (url, cb) => {
+  parseRss(url, (entry) => {
+    Record.where({link: entry.link}).findOne((err, record) => {
+      if (err) return console.error(err)
+      if (!record) {
+        console.log(`that's new entry, let's parse it`)
+        let newRecord = new Record(entry)
+        newRecord.save((err, result) => {
+          if (err) { return console.error(err) }
+          console.log(`saved new record in database ${entry.link}`)
+          cb(result)
+        })
+      } else {
+        // this record already was parsed
+        cb(record)
+      }
+    })
+  })
+}
