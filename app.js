@@ -41,6 +41,11 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
+app.get('/robots.txt', (req, res) => {
+    res.type('text/plain')
+    res.send("User-agent: *\nDisallow: /")
+})
+
 app.post('/' + bot.token, (req, res) => {
   bot.processUpdate(req.body)
   res.sendStatus(200)
