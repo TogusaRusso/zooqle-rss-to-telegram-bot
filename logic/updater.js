@@ -10,4 +10,7 @@ db.on('error', console.error.bind(console, 'updatter connection error:'))
 db.once('open', () => { console.log('updater connected to database') })
 
 const updateBot = require('./update_bot')
-updateBot()
+updateBot(() => {
+  console.log('closing connection to database')
+  mongoose.disconnect()
+})

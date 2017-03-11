@@ -42,8 +42,8 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.get('/robots.txt', (req, res) => {
-    res.type('text/plain')
-    res.send("User-agent: *\nDisallow: /")
+  res.type('text/plain')
+  res.send('User-agent: *\nDisallow: /')
 })
 
 app.post('/' + bot.token, (req, res) => {
