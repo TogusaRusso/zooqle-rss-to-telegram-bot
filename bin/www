@@ -87,4 +87,8 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  setTimeout(() => {
+    console.log('closing server after 5 minutes')
+    server.close()
+  }, 300 * 1000)
 }
